@@ -4,7 +4,7 @@ import android.graphics.Bitmap
 import androidx.core.graphics.blue
 import androidx.core.graphics.green
 import androidx.core.graphics.red
-import com.example.myapplication.util.Constants
+import com.example.imageeditor3000.util.Constants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 

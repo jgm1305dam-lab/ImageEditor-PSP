@@ -1,22 +1,21 @@
 package com.example.imageeditor3000.ui.screens.editor
 
-
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.myapplication.data.model.CompressionQuality
-import com.example.myapplication.data.model.FilterType
-import com.example.myapplication.data.model.ImageData
-import com.example.myapplication.data.repository.ImageRepository
-import com.example.myapplication.domain.processor.HistogramCalculator
-import com.example.myapplication.domain.processor.HistogramData
-import com.example.myapplication.domain.processor.HistogramStatistics
-import com.example.myapplication.domain.processor.ParallelProcessingProgress
-import com.example.myapplication.domain.usecase.ApplyFilterUseCase
-import com.example.myapplication.domain.usecase.ProcessBatchUseCase
-import com.example.myapplication.domain.usecase.SaveImageUseCase
+import com.example.imageeditor3000.data.model.CompressionQuality
+import com.example.imageeditor3000.data.model.FilterType
+import com.example.imageeditor3000.data.model.ImageData
+import com.example.imageeditor3000.data.repository.ImageRepository
+import com.example.imageeditor3000.domain.processor.HistogramCalculator
+import com.example.imageeditor3000.domain.processor.HistogramData
+import com.example.imageeditor3000.domain.processor.HistogramStatistics
+import com.example.imageeditor3000.domain.processor.ParallelProcessingProgress
+import com.example.imageeditor3000.domain.usecase.ApplyFilterUseCase
+import com.example.imageeditor3000.domain.usecase.ProcessBatchUseCase
+import com.example.imageeditor3000.domain.usecase.SaveImageUseCase
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

@@ -36,7 +36,7 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
-import com.example.myapplication.util.PermissionHelper
+import com.example.imageeditor3000.util.PermissionHelper
 import java.io.File
 
 /**

@@ -30,8 +30,8 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
-import com.example.myapplication.domain.processor.HistogramData // <--- Importante: Añadido este import
-import com.example.myapplication.domain.processor.HistogramStatistics
+import com.example.imageeditor3000.domain.processor.HistogramData // <--- Importante: Añadido este import
+import com.example.imageeditor3000.domain.processor.HistogramStatistics
 import kotlin.math.roundToInt
 
 /**

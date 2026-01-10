@@ -1,3 +1,4 @@
+
 package com.example.imageeditor3000.ui.screens.history
 
 
@@ -5,8 +6,8 @@ package com.example.imageeditor3000.ui.screens.history
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.myapplication.data.model.ImageProject
-import com.example.myapplication.domain.usecase.SaveImageUseCase
+import com.example.imageeditor3000.data.model.ImageProject
+import com.example.imageeditor3000.domain.usecase.SaveImageUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

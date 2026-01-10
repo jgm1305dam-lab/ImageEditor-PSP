@@ -2,6 +2,8 @@
 
 package com.example.imageeditor3000.ui.screens.history
 
+
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -45,7 +47,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.example.myapplication.data.model.ImageProject
+import com.example.imageeditor3000.data.model.ImageProject
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
