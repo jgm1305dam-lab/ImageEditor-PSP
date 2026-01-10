@@ -1,6 +1,5 @@
 package com.example.imageeditor3000.domain.processor
 
-
 import android.graphics.Bitmap
 import android.graphics.Color
 import androidx.core.graphics.blue

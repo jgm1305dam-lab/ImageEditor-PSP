@@ -1,7 +1,6 @@
 package com.example.imageeditor3000.data.local
 
 
-
 import android.content.Context
 import com.example.imageeditor3000.data.model.ImageProject
 import com.example.imageeditor3000.util.Constants

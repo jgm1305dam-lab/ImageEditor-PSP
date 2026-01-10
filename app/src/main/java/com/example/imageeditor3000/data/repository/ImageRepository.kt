@@ -1,16 +1,16 @@
-package com.example.imageeditor3000.data.repository
 
+package com.example.imageeditor3000.data.repository
 
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import com.example.myapplication.data.local.ImageFileManager
-import com.example.myapplication.data.model.CompressionQuality
-import com.example.myapplication.data.model.ImageData
-import com.example.myapplication.data.model.ImageFormat
-import com.example.myapplication.util.correctOrientation
-import com.example.myapplication.util.toBitmap
+import com.example.imageeditor3000.data.local.ImageFileManager
+import com.example.imageeditor3000.data.model.CompressionQuality
+import com.example.imageeditor3000.data.model.ImageData
+import com.example.imageeditor3000.data.model.ImageFormat
+import com.example.imageeditor3000.util.correctOrientation
+import com.example.imageeditor3000.util.toBitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -70,7 +70,7 @@ class ImageRepository(private val context: Context) {
 
             // Guardar en caché local y global
             imageCache[imageData.id] = imageData
-            com.example.myapplication.util.ImageCache.put(imageData)
+            com.example.imageeditor3000.util.ImageCache.put(imageData)
 
             Result.success(imageData)
 
@@ -163,7 +163,7 @@ class ImageRepository(private val context: Context) {
         if (localCache != null) return localCache
 
         // Si no está, buscar en caché global
-        return com.example.myapplication.util.ImageCache.get(imageId)
+        return com.example.imageeditor3000.util.ImageCache.get(imageId)
     }
 
     /**

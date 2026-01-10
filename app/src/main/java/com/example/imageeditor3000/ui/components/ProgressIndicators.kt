@@ -2,7 +2,6 @@ package com.example.imageeditor3000.ui.components
 
 
 
-
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

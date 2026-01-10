@@ -1,6 +1,5 @@
 package com.example.imageeditor3000.ui.navigation
 
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -36,7 +35,7 @@ fun NavGraph(
     ) {
         // Pantalla de galería (inicio)
         composable(Screen.Gallery.route) {
-            com.example.myapplication.ui.screens.gallery.GalleryScreen(
+            com.example.imageeditor3000.ui.screens.gallery.GalleryScreen(
                 onImageSelected = { imageId ->
                     navController.navigate(Screen.Editor.createRoute(imageId))
                 },
@@ -57,7 +56,7 @@ fun NavGraph(
             )
         ) { backStackEntry ->
             val imageId = backStackEntry.arguments?.getString("imageId") ?: ""
-            com.example.myapplication.ui.screens.editor.EditorScreen(
+            com.example.imageeditor3000.ui.screens.editor.EditorScreen(
                 imageId = imageId,
                 onBack = { navController.popBackStack() }
             )
@@ -65,20 +64,23 @@ fun NavGraph(
 
         // Pantalla de procesamiento por lotes
         composable(Screen.Batch.route) {
-            com.example.myapplication.ui.screens.batch.BatchScreen(
-                onBack = { navController.popBackStack() }
+            // Obtener imágenes del caché global
+            val images = com.example.imageeditor3000.util.ImageCache.getAll()
+
+            com.example.imageeditor3000.ui.screens.batch.BatchScreen(
+                onBack = { navController.popBackStack() },
+                preloadedImages = images
             )
         }
 
         // Pantalla de historial
         composable(Screen.History.route) {
-            // TODO: Implementar HistoryScreen
-            androidx.compose.foundation.layout.Box(
-                modifier = androidx.compose.ui.Modifier.fillMaxSize(),
-                contentAlignment = androidx.compose.ui.Alignment.Center
-            ) {
-                androidx.compose.material3.Text("History Screen - Coming soon")
-            }
+            com.example.imageeditor3000.ui.screens.history.HistoryScreen(
+                onBack = { navController.popBackStack() },
+                onProjectSelected = { imageId ->
+                    navController.navigate(Screen.Editor.createRoute(imageId))
+                }
+            )
         }
     }
 }
