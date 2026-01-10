@@ -1,7 +1,6 @@
 package com.example.imageeditor3000.domain.usecase
 
 
-
 import android.graphics.Bitmap
 import com.example.imageeditor3000.data.model.FilterType
 import com.example.imageeditor3000.data.model.ImageData

@@ -7,8 +7,8 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
-import com.example.myapplication.data.model.CompressionQuality
-import com.example.myapplication.util.Constants
+import com.example.imageeditor3000.data.model.CompressionQuality
+import com.example.imageeditor3000.util.Constants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
