@@ -36,6 +36,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -48,7 +49,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.example.imageeditor3000.data.model.FilterType
 import com.example.imageeditor3000.data.model.ImageData
 import com.example.imageeditor3000.ui.components.BatchProgressCard
 import com.example.imageeditor3000.ui.components.FilterSelector
@@ -62,11 +62,20 @@ import com.example.imageeditor3000.ui.components.MultipleImagePickerButton
 @Composable
 fun BatchScreen(
     onBack: () -> Unit,
-    preloadedImages: List<com.example.imageeditor3000.data.model.ImageData> = emptyList(),
+    preloadedImages: List<ImageData> = emptyList(),
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val viewModel = remember { BatchViewModel(context) }
+
+    // SOLUCIÓN: Crear un nuevo ViewModel cada vez que cambian las imágenes
+    // usando el hashCode de preloadedImages como key
+    val viewModelKey = remember(preloadedImages) {
+        preloadedImages.hashCode().toString() + System.currentTimeMillis()
+    }
+
+    val viewModel = remember(viewModelKey) {
+        BatchViewModel(context)
+    }
 
     val uiState by viewModel.uiState.collectAsState()
     val selectedImages by viewModel.selectedImages.collectAsState()
@@ -81,13 +90,22 @@ fun BatchScreen(
     // Cargar imágenes precargadas al iniciar
     LaunchedEffect(preloadedImages) {
         try {
-            if (preloadedImages.isNotEmpty() && selectedImages.isEmpty()) {
+            if (preloadedImages.isNotEmpty()) {
                 android.util.Log.d("BatchScreen", "Cargando ${preloadedImages.size} imágenes precargadas")
                 viewModel.selectImages(preloadedImages)
             }
         } catch (e: Exception) {
             android.util.Log.e("BatchScreen", "Error al cargar imágenes: ${e.message}", e)
             snackbarHostState.showSnackbar("Error al cargar imágenes: ${e.message}")
+        }
+    }
+
+    // Limpiar al salir de la pantalla
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.reset()
+            // CRÍTICO: Limpiar el caché de imágenes
+            com.example.imageeditor3000.util.ImageCache.clear()
         }
     }
 
@@ -149,7 +167,6 @@ fun BatchScreen(
             )
         },
         bottomBar = {
-            // ... (El código de tu BottomAppBar se queda igual) ...
             if (uiState is BatchUiState.ImagesSelected && selectedFilter != null) {
                 androidx.compose.material3.BottomAppBar(
                     containerColor = MaterialTheme.colorScheme.surface
@@ -174,94 +191,112 @@ fun BatchScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         modifier = modifier
     ) { paddingValues ->
-        // CAMBIO PRINCIPAL: Usamos Column en vez de LazyColumn
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(
+                top = 16.dp,
+                bottom = if (uiState is BatchUiState.ImagesSelected && selectedFilter != null) {
+                    80.dp
+                } else {
+                    16.dp
+                }
+            )
         ) {
             when (uiState) {
                 BatchUiState.Initial -> {
-                    InitialContent(
-                        onImagesSelected = { uris ->
-                            // Cargar imágenes desde URIs
-                        }
-                    )
+                    item {
+                        InitialContent(
+                            onImagesSelected = { uris ->
+                                // Cargar imágenes desde URIs
+                            }
+                        )
+                    }
                 }
 
                 is BatchUiState.ImagesSelected -> {
-                    // 1. Grid de imágenes (parte superior fija)
-                    ImagesPreviewGrid(images = selectedImages)
+                    item {
+                        ImagesPreviewGrid(images = selectedImages)
+                    }
 
-                    // 2. Filtros (ocupa el resto de la pantalla)
-                    FilterSelectionContent(
-                        selectedFilter = selectedFilter,
-                        onFilterSelected = { filter ->
-                            viewModel.selectFilter(filter)
-                        },
-                        onStartProcessing = {
-                            viewModel.startProcessing()
-                        },
-                        canStart = selectedFilter != null,
-                        // ESTA ES LA CLAVE: weight(1f) para llenar el espacio
-                        modifier = Modifier.weight(1f)
-                    )
+                    item {
+                        FilterSelectionContent(
+                            selectedFilter = selectedFilter,
+                            onFilterSelected = { filter ->
+                                viewModel.selectFilter(filter)
+                            },
+                            onStartProcessing = {
+                                viewModel.startProcessing()
+                            },
+                            canStart = selectedFilter != null
+                        )
+                    }
                 }
 
                 BatchUiState.Processing -> {
-                    ProcessingContent(
-                        currentImage = imageProgresses.indexOfFirst {
-                            it.state == com.example.imageeditor3000.ui.components.ProcessingItemState.PROCESSING
-                        } + 1,
-                        totalImages = selectedImages.size,
-                        overallProgress = overallProgress,
-                        imageProgresses = imageProgresses,
-                        estimatedTimeRemaining = estimatedTimeRemaining,
-                        onCancel = { viewModel.cancelProcessing() }
-                    )
+                    item {
+                        ProcessingContent(
+                            currentImage = imageProgresses.indexOfFirst {
+                                it.state == com.example.imageeditor3000.ui.components.ProcessingItemState.PROCESSING
+                            } + 1,
+                            totalImages = selectedImages.size,
+                            overallProgress = overallProgress,
+                            imageProgresses = imageProgresses,
+                            estimatedTimeRemaining = estimatedTimeRemaining,
+                            onCancel = { viewModel.cancelProcessing() }
+                        )
+                    }
                 }
 
                 is BatchUiState.Completed -> {
-                    // Para el estado completado, si la lista es larga, usamos LazyColumn dentro
-                    Column(modifier = Modifier.weight(1f)) {
+                    item {
                         CompletedContent(
                             processedCount = processedImages.size,
                             onSaveAll = { viewModel.saveAll() },
                             onReset = { viewModel.reset() }
                         )
+                    }
+
+                    item {
                         Text(
                             "Resultados",
-                            style = MaterialTheme.typography.titleMedium,
-                            modifier = Modifier.padding(vertical = 8.dp)
+                            style = MaterialTheme.typography.titleMedium
                         )
-                        // Lista scrollable para los resultados
-                        LazyColumn {
-                            items(imageProgresses) { item ->
-                                // Mostrar progreso final
-                            }
-                        }
+                    }
+
+                    items(imageProgresses) { item ->
+                        // Mostrar progreso final
                     }
                 }
 
                 BatchUiState.Saving -> {
-                    SavingContent()
+                    item {
+                        SavingContent()
+                    }
                 }
 
                 is BatchUiState.Saved -> {
-                    SavedContent(onDone = onBack)
+                    item {
+                        SavedContent(onDone = onBack)
+                    }
                 }
 
                 BatchUiState.Cancelled -> {
-                    CancelledContent(onReset = { viewModel.reset() })
+                    item {
+                        CancelledContent(onReset = { viewModel.reset() })
+                    }
                 }
 
                 is BatchUiState.Error -> {
-                    ErrorContent(
-                        message = (uiState as BatchUiState.Error).message,
-                        onRetry = { viewModel.reset() }
-                    )
+                    item {
+                        ErrorContent(
+                            message = (uiState as BatchUiState.Error).message,
+                            onRetry = { viewModel.reset() }
+                        )
+                    }
                 }
             }
         }
@@ -317,7 +352,6 @@ fun ImagesPreviewGrid(images: List<ImageData>) {
                             contentScale = ContentScale.Crop
                         )
 
-                        // Nombre de la imagen en la parte inferior
                         Box(
                             modifier = Modifier
                                 .align(Alignment.BottomCenter)
@@ -373,11 +407,9 @@ private fun FilterSelectionContent(
     selectedFilter: com.example.imageeditor3000.data.model.FilterType?,
     onFilterSelected: (com.example.imageeditor3000.data.model.FilterType) -> Unit,
     onStartProcessing: () -> Unit,
-    canStart: Boolean,
-    modifier: Modifier = Modifier // <--- Nuevo parámetro
+    canStart: Boolean
 ) {
-    // Aplicamos el modifier (que trae el weight) a la columna
-    Column(modifier = modifier.fillMaxWidth()) {
+    Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             "Selecciona un filtro para aplicar a todas las imágenes",
             style = MaterialTheme.typography.titleMedium
@@ -389,8 +421,8 @@ private fun FilterSelectionContent(
             onFilterSelected = onFilterSelected,
             currentFilter = selectedFilter,
             modifier = Modifier
-                .fillMaxSize() // <--- CAMBIO: fillMaxSize en lugar de height(300.dp)
-            // Nota: FilterSelector internamente debe encargarse del scroll si hay muchos filtros
+                .fillMaxWidth()
+                .height(300.dp)
         )
     }
 }
@@ -405,7 +437,6 @@ private fun ProcessingContent(
     onCancel: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        // Tarjeta de progreso principal
         BatchProgressCard(
             currentImage = currentImage,
             totalImages = totalImages,
@@ -417,7 +448,6 @@ private fun ProcessingContent(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Botón de cancelar
         OutlinedButton(
             onClick = onCancel,
             modifier = Modifier.fillMaxWidth(),
@@ -442,7 +472,6 @@ private fun ProcessingContent(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Lista de progreso individual
         ImageProgressList(imageProgresses = imageProgresses)
     }
 }
@@ -596,9 +625,6 @@ private fun ErrorContent(
     }
 }
 
-/**
- * Formatea tiempo en milisegundos a formato legible
- */
 private fun formatTime(milliseconds: Long): String {
     val seconds = milliseconds / 1000
     return when {
