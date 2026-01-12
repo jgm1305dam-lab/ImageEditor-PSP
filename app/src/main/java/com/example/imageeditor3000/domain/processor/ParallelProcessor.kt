@@ -9,7 +9,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.withContext
 import kotlin.math.ceil
@@ -32,13 +32,13 @@ class ParallelProcessor {
         bitmap: Bitmap,
         filter: FilterType,
         tileSize: Int = Constants.TILE_SIZE
-    ): Flow<ParallelProcessingProgress> = flow {
-        emit(ParallelProcessingProgress.Started)
+    ): Flow<ParallelProcessingProgress> = channelFlow {  // ← CAMBIO: flow -> channelFlow
+        send(ParallelProcessingProgress.Started)  // ← CAMBIO: emit -> send
 
         val tiles = divideBitmapIntoTiles(bitmap, tileSize)
         val totalTiles = tiles.size
 
-        emit(ParallelProcessingProgress.DividedIntoTiles(totalTiles))
+        send(ParallelProcessingProgress.DividedIntoTiles(totalTiles))  // ← CAMBIO: emit -> send
 
         val processedTiles = mutableListOf<ProcessedTile>()
         var processedCount = 0
@@ -53,7 +53,7 @@ class ParallelProcessor {
                         processedCount++
 
                         val progress = processedCount.toFloat() / totalTiles
-                        emit(ParallelProcessingProgress.TileProcessed(
+                        send(ParallelProcessingProgress.TileProcessed(  // ← CAMBIO: emit -> send
                             processedCount,
                             totalTiles,
                             progress
@@ -69,12 +69,12 @@ class ParallelProcessor {
             processedTiles.addAll(jobs.awaitAll())
         }
 
-        emit(ParallelProcessingProgress.Reassembling)
+        send(ParallelProcessingProgress.Reassembling)  // ← CAMBIO: emit -> send
 
         // Reensamblar imagen
         val result = reassembleTiles(processedTiles, bitmap.width, bitmap.height)
 
-        emit(ParallelProcessingProgress.Completed(result))
+        send(ParallelProcessingProgress.Completed(result))  // ← CAMBIO: emit -> send
     }
 
     /**
@@ -166,25 +166,25 @@ class ParallelProcessor {
     suspend fun processBatch(
         bitmaps: List<Bitmap>,
         filter: FilterType
-    ): Flow<BatchProcessingProgress> = flow {
+    ): Flow<BatchProcessingProgress> = channelFlow {  // ← CAMBIO: flow -> channelFlow
         if (bitmaps.isEmpty()) {
-            emit(BatchProcessingProgress.Completed(emptyList()))
-            return@flow
+            send(BatchProcessingProgress.Completed(emptyList()))  // ← CAMBIO: emit -> send
+            return@channelFlow
         }
 
-        emit(BatchProcessingProgress.Started(bitmaps.size))
+        send(BatchProcessingProgress.Started(bitmaps.size))  // ← CAMBIO: emit -> send
 
         val results = mutableListOf<Bitmap>()
 
         coroutineScope {
             bitmaps.forEachIndexed { index, bitmap ->
-                emit(BatchProcessingProgress.ProcessingImage(index, bitmaps.size, 0f))
+                send(BatchProcessingProgress.ProcessingImage(index, bitmaps.size, 0f))  // ← CAMBIO: emit -> send
 
                 // Procesar cada imagen con tiles
                 applyFilterParallel(bitmap, filter).collect { progress ->
                     when (progress) {
                         is ParallelProcessingProgress.TileProcessed -> {
-                            emit(BatchProcessingProgress.ProcessingImage(
+                            send(BatchProcessingProgress.ProcessingImage(  // ← CAMBIO: emit -> send
                                 index,
                                 bitmaps.size,
                                 progress.progress
@@ -192,7 +192,7 @@ class ParallelProcessor {
                         }
                         is ParallelProcessingProgress.Completed -> {
                             results.add(progress.result)
-                            emit(BatchProcessingProgress.ImageCompleted(
+                            send(BatchProcessingProgress.ImageCompleted(  // ← CAMBIO: emit -> send
                                 index + 1,
                                 bitmaps.size
                             ))
@@ -203,7 +203,7 @@ class ParallelProcessor {
             }
         }
 
-        emit(BatchProcessingProgress.Completed(results))
+        send(BatchProcessingProgress.Completed(results))  // ← CAMBIO: emit -> send
     }
 
     /**
