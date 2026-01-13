@@ -1,5 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+
+    <!-- Tema base generado por el proyecto -->
     <style name="Base.Theme.MyApplication" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
@@ -7,7 +8,21 @@
 
     <style name="Theme.MyApplication" parent="Base.Theme.MyApplication" />
 
-    <style name="Theme.ImageEditor" parent="android:Theme.Material.Light.NoActionBar">
+    <!-- Tema normal de tu app (lo puedes seguir usando si quieres) -->
+    <style name="Theme.ImageEditor" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
+
+    <!-- NUEVO: tema de Splash con tu logo -->
+    <style name="Theme.ImageEditor.Splash" parent="Theme.SplashScreen">
+        <!-- Fondo de la splash -->
+        <item name="windowSplashScreenBackground">@android:color/black</item>
+
+        <!-- Tu logo aquí -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_logo</item>
+
+        <!-- Tema que se aplica después de la splash -->
+        <item name="postSplashScreenTheme">@style/Theme.ImageEditor</item>
+    </style>
+
 </resources>
