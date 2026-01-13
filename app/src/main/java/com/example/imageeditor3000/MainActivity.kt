@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity() {
 
                 LaunchedEffect(Unit) {
                     // Aquí pones tu “carga”: delay, prefs, BD, etc.
-                    delay(1500)          // Simula espera o carga
+                    delay(0)          // Simula espera o carga
                     showSplash = false   // Cuando acaba, quitas la splash
                 }
 

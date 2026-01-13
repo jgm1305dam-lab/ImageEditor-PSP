@@ -330,44 +330,63 @@ fun ImagesPreviewGrid(images: List<ImageData>) {
                 )
             }
         } else {
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(vertical = 8.dp)
-            ) {
-                items(images) { imageData ->
-                    Box(
-                        modifier = Modifier
-                            .width(120.dp)
-                            .height(120.dp)
-                    ) {
-                        AsyncImage(
-                            model = imageData.uri,
-                            contentDescription = "Imagen: ${imageData.name}",
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(
-                                    MaterialTheme.colorScheme.surfaceVariant,
-                                    shape = MaterialTheme.shapes.medium
-                                ),
-                            contentScale = ContentScale.Crop
-                        )
+            // Partir la lista en filas de 2
+            val rows: List<List<ImageData>> = images.chunked(2)
 
-                        Box(
-                            modifier = Modifier
-                                .align(Alignment.BottomCenter)
-                                .fillMaxWidth()
-                                .background(
-                                    MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(vertical = 8.dp)
+            ) {
+                rows.forEach { rowImages ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        rowImages.forEach { imageData ->
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(120.dp)
+                            ) {
+                                AsyncImage(
+                                    model = imageData.uri,
+                                    contentDescription = "Imagen: ${imageData.name}",
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .background(
+                                            MaterialTheme.colorScheme.surfaceVariant,
+                                            shape = MaterialTheme.shapes.medium
+                                        ),
+                                    contentScale = ContentScale.Crop
                                 )
-                                .padding(4.dp)
-                        ) {
-                            Text(
-                                text = imageData.name,
-                                style = MaterialTheme.typography.labelSmall,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.fillMaxWidth(),
-                                textAlign = TextAlign.Center
+
+                                Box(
+                                    modifier = Modifier
+                                        .align(Alignment.BottomCenter)
+                                        .fillMaxWidth()
+                                        .background(
+                                            MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
+                                        )
+                                        .padding(4.dp)
+                                ) {
+                                    Text(
+                                        text = imageData.name,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.fillMaxWidth(),
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
+                            }
+                        }
+
+                        // Rellenar hueco si hay solo una imagen en la fila
+                        if (rowImages.size == 1) {
+                            Spacer(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(120.dp)
                             )
                         }
                     }
@@ -376,6 +395,7 @@ fun ImagesPreviewGrid(images: List<ImageData>) {
         }
     }
 }
+
 
 @Composable
 private fun InitialContent(
