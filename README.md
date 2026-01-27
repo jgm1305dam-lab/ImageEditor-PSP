@@ -1,5 +1,6 @@
 # PSP-ImageEditor 🎨
 Aplicación de edición de imágenes para Android que aplica filtros y transformaciones en paralelo utilizando corrutinas y arquitectura MVVM con Jetpack Compose.
+Enlace al vídeo demostrativo en YouTube: https://youtu.be/S-N_zpxYPos
 
 ## Descripción general
 Este proyecto forma parte de la asignatura de Programación de Servicios y Procesos (PSP) y tiene como objetivo desarrollar un editor de imágenes con procesamiento concurrente y una interfaz moderna basada en Jetpack Compose.
